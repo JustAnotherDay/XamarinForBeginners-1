@@ -81,25 +81,15 @@ namespace MyAnimeList.ViewModels
         private async Task PerformSearch()
         {
 
-            var networkAccess = Connectivity.NetworkAccess;
+            //Add search
+            int limit = 5;
+            string apiEndPoint = $"{Constants.BaseAddress}{SearchKeyword}{Constants.Limit}{limit}";
+            HttpResponseMessage httpResponse = await httpClient.GetAsync(apiEndPoint);
+            string result = await httpResponse.Content.ReadAsStringAsync();
 
-            if (networkAccess == NetworkAccess.Internet)
-            {
+            AnimeDetails = JsonConvert.DeserializeObject<AnimeListModel>(result).Animes;
 
-                var url = $"{Constants.BaseAddress}{SearchKeyword}{Constants.Limit}{5}";
-                
-                HttpResponseMessage httpResponse = await httpClient.GetAsync(url);
-                string httpResult = httpResponse.Content.ReadAsStringAsync().Result;
-                var httpData = JsonConvert.DeserializeObject<AnimeListModel>(httpResult);
 
-                AnimeDetails = httpData.Animes;
-
-            }
-
-            else 
-            {
-                await DialogService.DisplayAlertAsync("Network error", "Please check your internet connection and try again.", "OK");
-            }
         }
 
         public override void OnNavigatedTo(INavigationParameters parameters)
@@ -108,7 +98,6 @@ namespace MyAnimeList.ViewModels
         }
 
         #endregion
-
 
         #region Commands
 
